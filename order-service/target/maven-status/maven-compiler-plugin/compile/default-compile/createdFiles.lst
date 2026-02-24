@@ -1,0 +1,14 @@
+com\ecommerce\order\dto\ProductDTO.class
+com\ecommerce\order\service\OrderService.class
+com\ecommerce\order\exception\OrderNotFoundException.class
+com\ecommerce\order\dto\CreateOrderRequest.class
+com\ecommerce\order\config\AppConfig.class
+com\ecommerce\order\exception\InsufficientStockException.class
+com\ecommerce\order\exception\GlobalExceptionHandler.class
+com\ecommerce\order\model\Order$OrderStatus.class
+com\ecommerce\order\OrderServiceApplication.class
+com\ecommerce\order\controller\OrderController.class
+com\ecommerce\order\model\Order$OrderBuilder.class
+com\ecommerce\order\model\Order.class
+com\ecommerce\order\exception\ProductServiceException.class
+com\ecommerce\order\repository\OrderRepository.class
