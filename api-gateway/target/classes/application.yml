@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # Product Service Routes (public - no auth)
+        - id: product-service-public
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/products/**
+            - Method=GET
+          filters:
+            - StripPrefix=0
+
+        # Product Service Routes (protected - requires JWT)
+        - id: product-service-write
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/products/**
+            - Method=POST,PUT,DELETE
+          filters:
+            - StripPrefix=0
+            - name: JwtAuthFilter
+
+        # Order Service Routes (protected - requires JWT)
+        - id: order-service
+          uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/orders/**
+          filters:
+            - StripPrefix=0
+            - name: JwtAuthFilter
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationAndValidation2024}
+  expiration: 86400000  # 24 hours in ms
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.ecommerce: DEBUG
