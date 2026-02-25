@@ -145,8 +145,16 @@ export default function CheckoutPage() {
                                 <InputField label="Last Name" field="lastName" placeholder="Doe" width="1 1 45%" value={form.lastName} onChange={updateForm} />
                                 <InputField label="Email" field="email" type="email" placeholder="john@example.com" width="1 1 100%" value={form.email} onChange={updateForm} />
                                 <InputField label="Address" field="address" placeholder="123 Cloud St" width="1 1 100%" value={form.address} onChange={updateForm} />
-                                <InputField label="City" field="city" placeholder="San Francisco" width="1 1 45%" value={form.city} onChange={updateForm} />
-                                <InputField label="ZIP Code" field="zip" placeholder="94102" width="1 1 45%" value={form.zip} onChange={updateForm} />
+                                <InputField
+                                    label="City" field="city" placeholder="San Francisco" width="1 1 45%"
+                                    value={form.city}
+                                    onChange={(field, val) => updateForm(field, val.replace(/[0-9]/g, ''))}
+                                />
+                                <InputField
+                                    label="ZIP Code" field="zip" placeholder="94102" width="1 1 45%"
+                                    value={form.zip}
+                                    onChange={(field, val) => updateForm(field, val.replace(/\D/g, '').slice(0, 5))}
+                                />
                             </div>
                             <button type="submit" className="btn-primary" style={{ marginTop: '1.5rem', width: '100%' }}>
                                 Continue to Payment

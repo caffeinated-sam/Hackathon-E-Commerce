@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, Cpu, HardDrive, Wifi, Server, Zap, BarChart3, ArrowUpRight, ArrowDownRight, RefreshCcw } from 'lucide-react';
+import { Activity, Cpu, HardDrive, Wifi, Server, Zap, BarChart3, ArrowUpRight, ArrowDownRight, RefreshCcw, Users } from 'lucide-react';
 
 const generateMetrics = () => ({
     pods: {
@@ -38,6 +38,7 @@ const generateMetrics = () => ({
     cacheHitRate: Math.random() * 15 + 82,
     errorRate: Math.random() * 0.5,
     avgLatency: Math.floor(Math.random() * 40 + 12),
+    totalUsers: Math.floor(Math.random() * 5000) + 10000,
 });
 
 const GaugeChart = ({ value, max = 100, label, color, size = 100 }) => {
@@ -123,6 +124,7 @@ export default function MonitoringPage() {
             <div className="animate-entrance delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 {[
                     { icon: Server, label: 'Active Pods', value: `${metrics.pods.active} / ${metrics.pods.total}`, color: '#6366f1', trend: metrics.pods.active > 3 ? 'up' : 'down' },
+                    { icon: Users, label: 'Total Users', value: metrics.totalUsers.toLocaleString(), color: '#f43f5e', trend: 'up' },
                     { icon: Zap, label: 'Requests/sec', value: metrics.requestsPerSec, color: '#06b6d4', trend: 'up' },
                     { icon: BarChart3, label: 'Cache Hit Rate', value: `${metrics.cacheHitRate.toFixed(1)}%`, color: '#10b981', trend: 'up' },
                     { icon: Activity, label: 'Avg Latency', value: `${metrics.avgLatency}ms`, color: metrics.avgLatency > 40 ? '#f59e0b' : '#10b981', trend: metrics.avgLatency > 30 ? 'up' : 'down' },
