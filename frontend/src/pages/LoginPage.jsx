@@ -22,7 +22,7 @@ export default function LoginPage() {
         } else {
             success = await login(username, password);
         }
-        if (success) navigate(from, { replace: true });
+        if (success) navigate('/', { replace: true });
     };
 
     const switchMode = () => {

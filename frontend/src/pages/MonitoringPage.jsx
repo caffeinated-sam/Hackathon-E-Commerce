@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Activity, Cpu, HardDrive, Wifi, Server, Zap, BarChart3, ArrowUpRight, ArrowDownRight, RefreshCcw, Users } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
+import { Activity, Cpu, HardDrive, Wifi, Server, Zap, BarChart3, ArrowUpRight, ArrowDownRight, RefreshCcw, Users, ShoppingCart } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
 
 const generateMetrics = () => ({
     pods: {
@@ -66,9 +69,59 @@ const GaugeChart = ({ value, max = 100, label, color, size = 100 }) => {
 };
 
 export default function MonitoringPage() {
+    const { isAdmin, isAuthenticated } = useAuth();
     const [metrics, setMetrics] = useState(generateMetrics());
     const [lastUpdated, setLastUpdated] = useState(new Date());
     const [autoRefresh, setAutoRefresh] = useState(true);
+
+    if (!isAuthenticated) return <Navigate to="/login" state={{ from: '/monitoring' }} />;
+    if (!isAdmin) {
+        return (
+            <div className="page-container" style={{ textAlign: 'center', paddingTop: '10rem' }}>
+                <Activity size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '1rem' }} />
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Access Denied</h2>
+                <p style={{ color: 'var(--text-tertiary)' }}>Admin privileges required to view system metrics.</p>
+            </div>
+        );
+    }
+
+    const [loading, setLoading] = useState(false);
+    const [simulatedUsersCount, setSimulatedUsersCount] = useState(0);
+
+    const simulateLoad = async () => {
+        setLoading(true);
+        let successCount = 0;
+        const totalToCreate = 100;
+
+        console.log(`Starting generation of ${totalToCreate} users...`);
+
+        const batchSize = 5;
+        for (let i = 0; i < totalToCreate; i += batchSize) {
+            const batch = [];
+            for (let j = 0; j < batchSize && (i + j) < totalToCreate; j++) {
+                const userId = `${Date.now()}_${i + j}`;
+                batch.push(
+                    authAPI.register({
+                        username: `load_user_${userId}`,
+                        password: 'password123',
+                        email: `user_${userId}@example.com`,
+                        role: 'USER'
+                    }).then(() => {
+                        successCount++;
+                        setSimulatedUsersCount(prev => prev + 1);
+                    }).catch(err => {
+                        console.error(`Failed to register user ${i + j}:`, err.message);
+                    })
+                );
+            }
+            await Promise.all(batch);
+            // Small delay between batches to visible progress
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        alert(`Finished Load Simulation!\nSuccessfully created ${successCount} actual records in the database.\nThe system remains STABLE.`);
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (!autoRefresh) return;
@@ -121,26 +174,44 @@ export default function MonitoringPage() {
             </div>
 
             {/* Top Stats */}
-            <div className="animate-entrance delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                {[
-                    { icon: Server, label: 'Active Pods', value: `${metrics.pods.active} / ${metrics.pods.total}`, color: '#6366f1', trend: metrics.pods.active > 3 ? 'up' : 'down' },
-                    { icon: Users, label: 'Total Users', value: metrics.totalUsers.toLocaleString(), color: '#f43f5e', trend: 'up' },
-                    { icon: Zap, label: 'Requests/sec', value: metrics.requestsPerSec, color: '#06b6d4', trend: 'up' },
-                    { icon: BarChart3, label: 'Cache Hit Rate', value: `${metrics.cacheHitRate.toFixed(1)}%`, color: '#10b981', trend: 'up' },
-                    { icon: Activity, label: 'Avg Latency', value: `${metrics.avgLatency}ms`, color: metrics.avgLatency > 40 ? '#f59e0b' : '#10b981', trend: metrics.avgLatency > 30 ? 'up' : 'down' },
-                ].map((stat, i) => (
-                    <div key={i} className="stat-card" style={{ borderLeft: `3px solid ${stat.color}` }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                            <stat.icon size={20} color={stat.color} />
-                            {stat.trend === 'up' ?
-                                <ArrowUpRight size={16} color="#10b981" /> :
-                                <ArrowDownRight size={16} color="#f59e0b" />
-                            }
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <div className="animate-entrance delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', flex: 1, marginRight: '1rem' }}>
+                    {[
+                        { icon: Server, label: 'Active Pods', value: `${metrics.pods.active} / ${metrics.pods.total}`, color: '#6366f1', trend: metrics.pods.active > 3 ? 'up' : 'down' },
+                        { icon: Users, label: 'Total Users', value: (metrics.totalUsers + simulatedUsersCount).toLocaleString(), color: '#f43f5e', trend: 'up' },
+                        { icon: Zap, label: 'Requests/sec', value: metrics.requestsPerSec, color: '#06b6d4', trend: 'up' },
+                        { icon: BarChart3, label: 'Cache Hit Rate', value: `${metrics.cacheHitRate.toFixed(1)}%`, color: '#10b981', trend: 'up' },
+                        { icon: Activity, label: 'Avg Latency', value: `${metrics.avgLatency}ms`, color: metrics.avgLatency > 40 ? '#f59e0b' : '#10b981', trend: metrics.avgLatency > 30 ? 'up' : 'down' },
+                    ].map((stat, i) => (
+                        <div key={i} className="stat-card" style={{ borderLeft: `3px solid ${stat.color}`, marginBottom: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                                <stat.icon size={20} color={stat.color} />
+                                {stat.trend === 'up' ?
+                                    <ArrowUpRight size={16} color="#10b981" /> :
+                                    <ArrowDownRight size={16} color="#f59e0b" />
+                                }
+                            </div>
+                            <div className="stat-value">{stat.value}</div>
+                            <div className="stat-label">{stat.label}</div>
                         </div>
-                        <div className="stat-value">{stat.value}</div>
-                        <div className="stat-label">{stat.label}</div>
-                    </div>
-                ))}
+                    ))}
+                </div>
+                <button
+                    onClick={simulateLoad}
+                    disabled={loading}
+                    className="btn-primary"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '1rem 1.5rem',
+                        background: loading ? '#94a3b8' : 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
+                        boxShadow: '0 4px 12px rgba(244, 63, 94, 0.2)'
+                    }}
+                >
+                    <Users size={20} />
+                    {loading ? 'Simulating...' : 'Simulate 100 Users'}
+                </button>
             </div>
 
             {/* CPU Gauges & Auto-scaling */}

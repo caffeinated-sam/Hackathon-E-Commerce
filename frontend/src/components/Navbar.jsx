@@ -17,8 +17,10 @@ export default function Navbar() {
 
     const navLinks = [
         { to: '/', label: 'Products', icon: Package },
-        { to: '/monitoring', label: 'Monitoring', icon: Activity },
-        ...(isAdmin ? [{ to: '/admin', label: 'Admin', icon: ShieldCheck }] : []),
+        ...(isAdmin ? [
+            { to: '/monitoring', label: 'Monitoring', icon: Activity },
+            { to: '/admin', label: 'Admin', icon: ShieldCheck }
+        ] : []),
     ];
 
     return (
