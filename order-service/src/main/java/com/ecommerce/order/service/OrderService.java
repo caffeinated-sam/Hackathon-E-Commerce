@@ -58,6 +58,10 @@ public class OrderService {
                 .quantity(request.getQuantity())
                 .totalPrice(totalPrice)
                 .customerName(request.getCustomerName())
+                .email(request.getEmail())
+                .address(request.getAddress())
+                .city(request.getCity())
+                .zip(request.getZip())
                 .status(Order.OrderStatus.CONFIRMED)
                 .build();
 

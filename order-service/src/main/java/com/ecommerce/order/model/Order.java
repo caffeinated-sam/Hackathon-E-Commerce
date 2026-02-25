@@ -45,6 +45,14 @@ public class Order {
     @Column(name = "customer_name")
     private String customerName;
 
+    private String email;
+
+    private String address;
+
+    private String city;
+
+    private String zip;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

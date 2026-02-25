@@ -15,4 +15,12 @@ public class CreateOrderRequest {
     private Integer quantity;
 
     private String customerName;
+
+    private String email;
+
+    private String address;
+
+    private String city;
+
+    private String zip;
 }

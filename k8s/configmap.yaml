@@ -11,5 +11,7 @@ data:
   REDIS_PORT: "6379"
   PRODUCT_DB: product_db
   ORDER_DB: order_db
+  USER_DB: user_db
   PRODUCT_SERVICE_URL: http://product-service:8081
   ORDER_SERVICE_URL: http://order-service:8082
+  USER_SERVICE_URL: http://user-service:8083

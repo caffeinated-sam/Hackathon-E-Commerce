@@ -60,12 +60,32 @@ services:
     environment:
       PRODUCT_SERVICE_URL: http://product-service:8081
       ORDER_SERVICE_URL: http://order-service:8082
+      USER_SERVICE_URL: http://user-service:8083
       JWT_SECRET: mySecretKeyForJWTTokenGenerationAndValidation2024
     networks:
       - ecommerce-net
     depends_on:
       - product-service
       - order-service
+      - user-service
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/user_db
+      SPRING_DATASOURCE_USERNAME: ecommerce_user
+      SPRING_DATASOURCE_PASSWORD: ecommerce_pass
+    networks:
+      - ecommerce-net
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   product-service:
     build:

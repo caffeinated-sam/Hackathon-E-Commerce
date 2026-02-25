@@ -44,6 +44,13 @@ public class Product implements Serializable {
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
+    @Size(min = 2, max = 50, message = "Category must be between 2 and 50 characters")
+    @Column(nullable = false)
+    private String category;
+
+    @Column(name = "image_url")
+    private String image;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
